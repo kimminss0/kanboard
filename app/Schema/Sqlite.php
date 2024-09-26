@@ -460,7 +460,7 @@ function version_90(PDO $pdo)
             group_id INTEGER NOT NULL,
             project_id INTEGER NOT NULL,
             role TEXT NOT NULL,
-            FOREIGN KEY(group_id) REFERENCES groups(id) ON DELETE CASCADE,
+            FOREIGN KEY(group_id) REFERENCES groups(user_id) ON DELETE CASCADE,
             FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE,
             UNIQUE(group_id, project_id)
         )
@@ -472,12 +472,12 @@ function version_90(PDO $pdo)
     $rq->execute();
     $rows = $rq->fetchAll(PDO::FETCH_ASSOC) ?: array();
 
-    $rq = $pdo->prepare('UPDATE project_has_users SET "role"=? WHERE "id"=?');
+    $rq = $pdo->prepare('UPDATE project_has_users SET "role"=? WHERE "user_id"=?');
 
     foreach ($rows as $row) {
         $rq->execute(array(
             $row['is_owner'] == 1 ? Role::PROJECT_MANAGER : Role::PROJECT_MEMBER,
-            $row['id'],
+            $row['user_id'],
         ));
     }
 }
